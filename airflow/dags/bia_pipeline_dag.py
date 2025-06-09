@@ -1,10 +1,10 @@
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy import DummyOperator
 from datetime import datetime, timedelta
 import pandas as pd
 import requests
-import time
 from sqlalchemy import create_engine
 
 default_args = {
@@ -33,23 +33,40 @@ with DAG(
     def enrich_data():
         df = pd.read_pickle('/opt/airflow/data/validated.pkl')
         enriched = []
-        for _, row in df.iterrows():
-            lat, lon = row['latitude'], row['longitude']
+        chunk_size = 100
+        for i in range(0, len(df), chunk_size):
+            chunk = df.iloc[i:i+chunk_size]
+            payload = {
+                "geolocations": chunk[['longitude', 'latitude']].to_dict(orient='records')
+            }
             try:
-                response = requests.get(f'https://api.postcodes.io/postcodes?lon={lon}&lat={lat}', timeout=5)
-                if response.status_code == 200 and response.json().get('result'):
-                    result = response.json()['result'][0]
-                    enriched.append({
-                        'latitude': lat,
-                        'longitude': lon,
-                        'postcode': result['postcode'],
-                        'country': result['country']
-                    })
+                response = requests.post("https://api.postcodes.io/postcodes", json=payload, timeout=10)
+                if response.status_code == 200:
+                    data = response.json().get("result", [])
+                    for item in data:
+                        query = item.get("query", {})
+                        result = item.get("result")
+                        if result:
+                            record = {
+                                "latitude": query.get("latitude"),
+                                "longitude": query.get("longitude"),
+                                "postcode": result[0].get("postcode") if result[0] else None,
+                                "country": result[0].get("country") if result[0] else None,
+                                "distance": result[0].get("distance") if result[0] else None
+                            }
+                        else:
+                            record = {
+                                "latitude": query.get("latitude"),
+                                "longitude": query.get("longitude"),
+                                "postcode": None,
+                                "country": None,
+                                "distance": None
+                            }
+                        enriched.append(record)
                 else:
-                    enriched.append({'latitude': lat, 'longitude': lon, 'postcode': None, 'country': None})
-            except:
-                enriched.append({'latitude': lat, 'longitude': lon, 'postcode': None, 'country': None})
-            time.sleep(1)
+                    raise Exception(f"API error {response.status_code}")
+            except Exception as e:
+                print(f"Fallo en la petición a la API: {e}")
         pd.DataFrame(enriched).to_pickle('/opt/airflow/data/enriched.pkl')
 
     def store_data():

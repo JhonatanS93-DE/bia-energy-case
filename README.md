@@ -3,11 +3,13 @@
 Autor: Jhonatan Andres Saldarriaga I.
 GitHub: [JhonatanS93-DE](https://github.com/JhonatanS93-DE)
 
+Este archivo contiene la solución al implementar un pipeline modular para ingestión, enriquecimiento, almacenamiento y generación de reportes sobre datos geoespaciales.
 ---
 
 ## Objetivo del Proyecto
 
-Desarrollar una solución de punta a punta para enriquecer datos geoespaciales usando la API de [postcodes.io](https://postcodes.io), integrarlos a una base de datos PostgreSQL, y generar reportes optimizados que permitan análisis rápido y calidad de datos.
+Desarrollar una solución de punta a punta para enriquecer coordenadas geoespaciales (`latitude`, `longitude`) usando la API de [postcodes.io](https://postcodes.io), transformarlas en códigos postales, integrarlas a una base de datos PostgreSQL, y generar reportes optimizados que permitan análisis rápido y control de calidad de datos.
+
 
 ---
 
@@ -62,14 +64,16 @@ docker-compose up --build
 
 ## Flujo de datos
 
-1. **Ingesta de CSV**: Se eliminan duplicados, se validan columnas lat/lon.
-2. **Enriquecimiento con API**: Se consulta `postcodes.io` para obtener el código postal y país correspondiente. 
-   - Control de errores por timeouts, fallas HTTP y respuestas vacías.
-   - Se respeta el rate limit con `sleep(1)`.
-3. **Carga en PostgreSQL**: Se crea la tabla `enriched_postcodes`.
-4. **Generación de reportes**:
-   - `top_postcodes.csv`: los códigos postales más comunes.
-   - `quality_stats.csv`: % de coordenadas no enriquecidas.
+1. **Ingesta de datos**: se toma un archivo `CSV` que contiene columnas `latitude` y `longitude`.
+2. **Enriquecimiento**:
+   - Se utiliza el endpoint de *Bulk Reverse Geocode* de `postcodes.io`, lo que permite enriquecer múltiples coordenadas en una sola petición.
+   - Se controlan errores de red, fallos HTTP y respuestas vacías.
+   - Permite escalar sin problema gracias a procesamiento por lotes (chunks de 100).
+3. **Almacenamiento**: los datos enriquecidos se guardan en PostgreSQL en la tabla `enriched_postcodes`.
+4. **Reportes**:
+   - `top_postcodes.csv`: los 10 códigos postales más frecuentes.
+   - `quality_stats.csv`: porcentaje de registros no enriquecidos.
+
 
 ---
 
@@ -78,6 +82,18 @@ docker-compose up --build
 - El proyecto está contenedorizado para asegurar portabilidad y reproducibilidad.
 - La arquitectura puede escalarse en un entorno de Airflow o pipeline cloud en AWS.
 - Se aplicaron principios de observabilidad mediante logs estructurados.
+
+---
+## Logging centralizado
+
+Se implementa un sistema de logging reutilizable en `src/utils.py`, que permite capturar y formatear eventos clave del pipeline:
+
+```
+2024-06-09 12:00:00 - INFO - Archivo CSV cargado con 1000 filas
+2024-06-09 12:01:02 - ERROR - Fallo en la petición a la API: Timeout
+```
+
+Esto permite monitorear fácilmente el comportamiento del pipeline en entornos reales.
 
 ---
 
@@ -109,8 +125,8 @@ Puedes abrirlo desde [https://app.diagrams.net](https://app.diagrams.net) arrast
 
 ## Explicacion final
 
-Este proyecto refleja prácticas de ingeniería de datos modernas: pipelines modulares, manejo  de APIs, almacenamiento eficiente y entrega de reportes. Se desarrolló con enfoque en calidad, mantenibilidad y ejecución realista bajo condiciones de producción controlada.
+Este proyecto refleja prácticas de ingeniería de datos modernas: pipelines modulares, manejo de APIs, almacenamiento eficiente y entrega de reportes. Se desarrolló con enfoque en calidad, mantenibilidad y ejecución realista bajo condiciones de producción controlada.
 
 ---
 
-Para dudas o retroalimentación: **jhonatan1393@gmail.com**
+Para dudas o retroalimentación: **jhonatan1393@gmail.com** o escribir un comentario en el repositorio de github

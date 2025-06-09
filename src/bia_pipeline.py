@@ -1,9 +1,12 @@
+
 # Proyecto: Solución caso técnico Bia Energy
-# Autor: Jhonatan Saldarriaga
+# Autor: Jhonatan Andres Saldarriaga I.
 
 # Paso 1: Leer CSV y validar datos
 import pandas as pd
 import logging
+import requests
+from sqlalchemy import create_engine
 from src.utils import setup_logger
 
 logger = setup_logger()
@@ -21,37 +24,46 @@ def load_and_validate_csv(filepath: str) -> pd.DataFrame:
         logger.error(f"Error al leer y validar CSV: {e}")
         raise
 
-# Paso 2: Enriquecimiento con API externa
-import requests
-import time
-
-def enrich_coordinates(df: pd.DataFrame) -> pd.DataFrame:
+# Paso 2: Enriquecimiento con API externa (Bulk Reverse Geocode)
+def enrich_coordinates_bulk(df: pd.DataFrame) -> pd.DataFrame:
     enriched = []
-    for index, row in df.iterrows():
-        lat, lon = row['latitude'], row['longitude']
+    chunk_size = 100  # API limitation
+    for i in range(0, len(df), chunk_size):
+        chunk = df.iloc[i:i+chunk_size]
+        payload = {
+            "geolocations": chunk[['longitude', 'latitude']].to_dict(orient='records')
+        }
         try:
-            response = requests.get(f"https://api.postcodes.io/postcodes?lon={lon}&lat={lat}", timeout=5)
+            response = requests.post("https://api.postcodes.io/postcodes", json=payload, timeout=10)
             if response.status_code == 200:
-                result = response.json()
-                if result.get('result'):
-                    enriched.append({
-                        'latitude': lat,
-                        'longitude': lon,
-                        'postcode': result['result'][0]['postcode'],
-                        'country': result['result'][0]['country']
-                    })
-                else:
-                    enriched.append({'latitude': lat, 'longitude': lon, 'postcode': None, 'country': None})
+                data = response.json().get("result", [])
+                for item in data:
+                    query = item.get("query", {})
+                    result = item.get("result")
+                    if result:
+                        record = {
+                            "latitude": query.get("latitude"),
+                            "longitude": query.get("longitude"),
+                            "postcode": result[0].get("postcode") if result[0] else None,
+                            "country": result[0].get("country") if result[0] else None,
+                            "distance": result[0].get("distance") if result[0] else None
+                        }
+                    else:
+                        record = {
+                            "latitude": query.get("latitude"),
+                            "longitude": query.get("longitude"),
+                            "postcode": None,
+                            "country": None,
+                            "distance": None
+                        }
+                    enriched.append(record)
             else:
-                logger.warning(f"Error en respuesta API para coordenadas ({lat},{lon}) - status: {response.status_code}")
+                logger.warning(f"API respondió con error HTTP {response.status_code}")
         except Exception as e:
-            logger.error(f"Fallo al conectar API: {e}")
-        time.sleep(1)  # rate limiting
+            logger.error(f"Fallo en la petición a la API: {e}")
     return pd.DataFrame(enriched)
 
 # Paso 3: Almacenamiento en base de datos PostgreSQL
-from sqlalchemy import create_engine
-
 def save_to_postgres(df: pd.DataFrame, db_url: str):
     try:
         engine = create_engine(db_url)
@@ -85,7 +97,7 @@ def generate_report(db_url: str):
 # Ejecución principal
 if __name__ == "__main__":
     df = load_and_validate_csv("data/postcodes_geo.csv")
-    enriched_df = enrich_coordinates(df)
+    enriched_df = enrich_coordinates_bulk(df)
     db_uri = "postgresql://bia_user:bia_password@postgres:5432/bia_db"
     save_to_postgres(enriched_df, db_uri)
     generate_report(db_uri)
