@@ -76,8 +76,8 @@ docker-compose up --build
 ## Porque esta solucion?
 - Se eligió **PostgreSQL** por su robustez y rendimiento para operaciones analíticas.
 - El proyecto está contenedorizado para asegurar portabilidad y reproducibilidad.
-- La arquitectura puede escalarse en un entorno de Airflow o pipeline cloud.
-- Se aplicaron principios de **observabilidad** mediante logs estructurados.
+- La arquitectura puede escalarse en un entorno de Airflow o pipeline cloud en AWS.
+- Se aplicaron principios de observabilidad mediante logs estructurados.
 
 ---
 
