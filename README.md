@@ -97,6 +97,16 @@ Esta versión con Airflow se entrega como una carpeta adicional (`airflow/`) que
 
 ---
 
+## Diagrama de Arquitectura
+
+El siguiente diagrama muestra el flujo de datos completo del pipeline:
+
+📄 [Ver diagrama editable en draw.io](docs/bia_pipeline_detailed.drawio)
+
+Puedes abrirlo desde [https://app.diagrams.net](https://app.diagrams.net) arrastrando el archivo aqui se podria editar una mejora futura.
+
+---
+
 ## Explicacion final
 
 Este proyecto refleja prácticas de ingeniería de datos modernas: pipelines modulares, manejo  de APIs, almacenamiento eficiente y entrega de reportes. Se desarrolló con enfoque en calidad, mantenibilidad y ejecución realista bajo condiciones de producción controlada.
