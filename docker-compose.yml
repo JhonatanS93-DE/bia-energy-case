@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: bia_postgres
+    environment:
+      POSTGRES_USER: bia_user
+      POSTGRES_PASSWORD: bia_password
+      POSTGRES_DB: bia_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  bia_app:
+    build: .
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+
+volumes:
+  pgdata:
