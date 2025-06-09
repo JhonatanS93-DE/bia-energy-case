@@ -101,7 +101,7 @@ Esta versión con Airflow se entrega como una carpeta adicional (`airflow/`) que
 
 El siguiente diagrama muestra el flujo de datos completo del pipeline:
 
-📄 [Ver diagrama editable en draw.io](docs/bia_pipeline_detailed.drawio)
+📄 [Ver diagrama editable en draw.io](docs/bia_pipeline_detailed.drawio.png)
 
 Puedes abrirlo desde [https://app.diagrams.net](https://app.diagrams.net) arrastrando el archivo aqui se podria editar una mejora futura.
 
