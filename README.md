@@ -1,6 +1,6 @@
 # Bia Energy - Case
 
-Autor: Jhonatan Saldarriaga  
+Autor: Jhonatan Andres Saldarriaga I.
 GitHub: [JhonatanS93-DE](https://github.com/JhonatanS93-DE)
 
 ---
