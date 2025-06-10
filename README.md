@@ -112,6 +112,55 @@ Mejora adicional:
 
 ---
 
+## Consultas SQL para validación de datos en BD
+
+Dentro del repositorio encontrarás un archivo con consultas SQL útiles para validar la calidad y consistencia de los datos procesados por el pipeline.
+
+Archivo: `sql/test_queries.sql`
+
+Este archivo incluye:
+
+- Visualiza el dataset completo enriquecido.
+- Total de registros procesados.
+- Conteo de nulos por columna clave
+- Porcentaje de nulos por columna clave
+- Estadísticas adicionales
+
+Puedes ejecutar estas consultas directamente en PostgreSQL usando herramientas como **DBeaver**
+
+Esto permite verificar fácilmente los resultados, detectar problemas en el enriquecimiento o evaluar la calidad general del dataset generado.
+
+## 🧩 Configuración de DBeaver para visualizar la base de datos
+
+Puedes usar [DBeaver](https://dbeaver.io/download/) como cliente gráfico para conectarte a la base de datos PostgreSQL del contenedor Docker y explorar los datos enriquecidos.
+
+### Pasos para la configuración:
+
+1. **Instalar DBeaver** si no lo tienes previamente.
+2. Abrir DBeaver y crear una nueva conexión:
+
+   - Haz clic en **Archivo > Nueva conexión** o el botón `+`.
+   - Selecciona **PostgreSQL**.
+
+3. Completa los campos de conexión con esta configuración:
+
+   | Campo              | Valor                      |
+   |--------------------|----------------------------|
+   | Host               | `localhost`                |
+   | Puerto             | `5432`                     |
+   | Base de datos      | `bia_db`                   |
+   | Usuario            | `bia_user`                 |
+   | Contraseña         | `bia_password`             |
+
+4. Haz clic en **Test Connection** para verificar la conexión.
+
+   > Si es la primera vez, DBeaver descargará automáticamente el driver de PostgreSQL.
+
+5. Si la conexión es exitosa, haz clic en **Finalizar**.
+
+> Asegúrate de que el contenedor Docker de PostgreSQL esté **activo** (`docker ps`) cuando te conectes desde DBeaver.
+
+
 ## Explicacion final
 
 Este proyecto refleja prácticas modernas de ingeniería de datos:
