@@ -27,7 +27,8 @@ Desarrollar una solución de punta a punta para enriquecer coordenadas geoespaci
 
 ```
 
-[Ver imagen de la estructura del proyecto](docs/estructura del proyecto.png)
+![Diagrama de Arquitectura](docs/estructura del proyecto.png)
+
 ---
 
 ## Ejecución del Proyecto (Local via Docker)
