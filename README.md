@@ -130,7 +130,7 @@ Puedes ejecutar estas consultas directamente en PostgreSQL usando herramientas c
 
 Esto permite verificar fácilmente los resultados, detectar problemas en el enriquecimiento o evaluar la calidad general del dataset generado.
 
-## 🧩 Configuración de DBeaver para visualizar la base de datos
+## Configuración de DBeaver para visualizar la base de datos
 
 Puedes usar [DBeaver](https://dbeaver.io/download/) como cliente gráfico para conectarte a la base de datos PostgreSQL del contenedor Docker y explorar los datos enriquecidos.
 
@@ -154,11 +154,11 @@ Puedes usar [DBeaver](https://dbeaver.io/download/) como cliente gráfico para c
 
 4. Haz clic en **Test Connection** para verificar la conexión.
 
-   > Si es la primera vez, DBeaver descargará automáticamente el driver de PostgreSQL.
+   Si es la primera vez, DBeaver descargará automáticamente el driver de PostgreSQL.
 
 5. Si la conexión es exitosa, haz clic en **Finalizar**.
 
-> Asegúrate de que el contenedor Docker de PostgreSQL esté **activo** (`docker ps`) cuando te conectes desde DBeaver.
+Asegúrate de que el contenedor Docker de PostgreSQL esté **activo** (`docker ps`) cuando te conectes desde DBeaver.
 
 
 ## Explicacion final
@@ -171,7 +171,7 @@ Este proyecto refleja prácticas modernas de ingeniería de datos:
 
 ---
 
-Contacto: **jhonatan1393@gmail.com**  
+Contacto autor: **jhonatan1393@gmail.com**  
 También puedes dejar comentarios en el repositorio de GitHub.
 
 ---
