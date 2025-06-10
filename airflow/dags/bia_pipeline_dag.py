@@ -21,19 +21,40 @@ with DAG(
     schedule_interval=None,
     start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=['bia', 'etl'],
+    tags=['bia', 'etl', 'airflow'],
 ) as dag:
 
     def ingest_data():
         df = pd.read_csv('/opt/airflow/data/postcodesgeo.csv')
-        df.drop_duplicates(inplace=True)
-        df.dropna(subset=['latitude', 'longitude'], inplace=True)
-        df.to_pickle('/opt/airflow/data/validated.pkl')
+        df.columns = df.columns.str.strip().str.lower()
+
+    if 'lat' in df.columns and 'lon' in df.columns:
+        df.rename(columns={'lat': 'latitude', 'lon': 'longitude'}, inplace=True)
+    else:
+        raise ValueError("El archivo no contiene las columnas 'lat' y 'lon' requeridas.")
+
+    df.drop_duplicates(inplace=True)
+    df.dropna(subset=['latitude', 'longitude'], inplace=True)
+    df.to_pickle('/opt/airflow/data/validated.pkl')
+
+    
+    def ingest_data():
+    df = pd.read_csv('/opt/airflow/data/postcodesgeo.csv')
+    df.columns = df.columns.str.strip().str.lower()
+
+    if 'lat' in df.columns and 'lon' in df.columns:
+        df.rename(columns={'lat': 'latitude', 'lon': 'longitude'}, inplace=True)
+    else:
+        raise ValueError("El archivo no contiene las columnas 'lat' y 'lon' requeridas.")
+
+    df.drop_duplicates(inplace=True)
+    df.dropna(subset=['latitude', 'longitude'], inplace=True)
+    df.to_pickle('/opt/airflow/data/validated.pkl')
 
     def enrich_data():
         df = pd.read_pickle('/opt/airflow/data/validated.pkl')
         enriched = []
-        chunk_size = 100
+        chunk_size = 100  # (Limitacion de la API)
         for i in range(0, len(df), chunk_size):
             chunk = df.iloc[i:i+chunk_size]
             payload = {

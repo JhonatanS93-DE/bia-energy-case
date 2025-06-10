@@ -13,7 +13,14 @@ logger = setup_logger()
 def load_and_validate_csv(filepath: str) -> pd.DataFrame:
     try:
         df = pd.read_csv(filepath)
-        logger.info(f"Archivo CSV cargado con {len(df)} filas")
+        df.columns = df.columns.str.strip().str.lower()
+        logger.info(f"Archivo CSV cargado con {len(df)} filas y columnas: {df.columns.tolist()}")
+
+        if 'lat' in df.columns and 'lon' in df.columns:
+            df.rename(columns={'lat': 'latitude', 'lon': 'longitude'}, inplace=True)
+        else:
+            raise ValueError("El archivo no contiene las columnas 'lat' y 'lon' requeridas.")
+
         df.drop_duplicates(inplace=True)
         df.dropna(subset=['latitude', 'longitude'], inplace=True)
         df = df[(df['latitude'].apply(lambda x: isinstance(x, (float, int)))) &
