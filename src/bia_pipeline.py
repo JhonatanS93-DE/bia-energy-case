@@ -6,7 +6,7 @@ import requests
 from sqlalchemy import create_engine
 import sys
 sys.path.append("src")
-from src.utils import setup_logger
+from utils import setup_logger
 
 logger = setup_logger()
 
@@ -95,7 +95,7 @@ def generate_report(db_url: str):
 
 # Ejecución principal
 if __name__ == "__main__":
-    df = load_and_validate_csv("data/postcodes_geo.csv")
+    df = load_and_validate_csv("data/postcodesgeo.csv")
     enriched_df = enrich_coordinates_bulk(df)
     db_uri = "postgresql://bia_user:bia_password@postgres:5432/bia_db"
     save_to_postgres(enriched_df, db_uri)

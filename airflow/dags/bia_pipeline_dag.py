@@ -25,7 +25,7 @@ with DAG(
 ) as dag:
 
     def ingest_data():
-        df = pd.read_csv('/opt/airflow/data/postcodes_geo.csv')
+        df = pd.read_csv('/opt/airflow/data/postcodesgeo.csv')
         df.drop_duplicates(inplace=True)
         df.dropna(subset=['latitude', 'longitude'], inplace=True)
         df.to_pickle('/opt/airflow/data/validated.pkl')
