@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 from sqlalchemy import create_engine
 
+
 default_args = {
     'owner': 'Jhonatan Saldarriaga',
     'depends_on_past': False,
@@ -90,10 +91,13 @@ with DAG(
                 print(f"Fallo en la petición a la API: {e}")
         pd.DataFrame(enriched).to_pickle('/opt/airflow/data/enriched.pkl')
 
+        
     def store_data():
         df = pd.read_pickle('/opt/airflow/data/enriched.pkl')
         engine = create_engine('postgresql://bia_user:bia_password@bia_postgres:5432/bia_db')
         df.to_sql('enriched_postcodes', engine, if_exists='replace', index=False)
+        df.to_csv('/opt/airflow/reports/enriched_postcodes.csv', index=False)
+
 
     def generate_reports():
         engine = create_engine('postgresql://bia_user:bia_password@bia_postgres:5432/bia_db')

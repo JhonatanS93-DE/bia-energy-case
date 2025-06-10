@@ -91,7 +91,7 @@ def generate_report(db_url: str):
         """, conn)
 
         quality_stats = pd.read_sql("""
-            SELECT COUNT(*) FILTER (WHERE postcode IS NULL)*100.0/COUNT(*) AS pct_null
+            SELECT COUNT(*) FILTER (WHERE postcode IS NULL)*100.0/COUNT(*) AS porcentaje_null 
             FROM enriched_postcodes;
         """, conn)
 
@@ -104,6 +104,8 @@ def generate_report(db_url: str):
 if __name__ == "__main__":
     df = load_and_validate_csv("data/postcodesgeo.csv")
     enriched_df = enrich_coordinates_bulk(df)
+    enriched_df.to_csv("reports/enriched_postcodes.csv", index=False)
     db_uri = "postgresql://bia_user:bia_password@postgres:5432/bia_db"
+    # db_uri = "postgresql://bia_user:bia_password@localhost:5432/bia_db"
     save_to_postgres(enriched_df, db_uri)
     generate_report(db_uri)
