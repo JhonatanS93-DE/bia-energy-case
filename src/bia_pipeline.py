@@ -7,6 +7,8 @@ from sqlalchemy import create_engine
 import sys
 sys.path.append("src")
 from utils import setup_logger
+import time
+import random
 
 logger = setup_logger()
 
@@ -31,46 +33,74 @@ def load_and_validate_csv(filepath: str) -> pd.DataFrame:
         raise
 
 # Paso 2: Enriquecimiento con API externa (Se uso Bulk Reverse Geocode)
+import time
+import random
+
 def enrich_coordinates_bulk(df: pd.DataFrame) -> pd.DataFrame:
     enriched = []
-    chunk_size = 100  # (Limitacion de la API)
+    chunk_size = 100
+
     for i in range(0, len(df), chunk_size):
         chunk = df.iloc[i:i+chunk_size]
         payload = {
             "geolocations": chunk[['longitude', 'latitude']].to_dict(orient='records')
         }
-        try:
-            response = requests.post("https://api.postcodes.io/postcodes", json=payload, timeout=10)
-            if response.status_code == 200:
-                data = response.json().get("result", [])
-                for item in data:
-                    query = item.get("query", {})
-                    result = item.get("result")
-                    if result:
-                        record = {
-                            "latitude": query.get("latitude"),
-                            "longitude": query.get("longitude"),
-                            "postcode": result[0].get("postcode") if result[0] else None,
-                            "country": result[0].get("country") if result[0] else None,
-                            "admin_district": result[0].get("admin_district") if result[0] else None,
-                            "nhs_ha": result[0].get("nhs_ha") if result[0] else None,
-                            "distance": result[0].get("distance") if result[0] else None
-                        }
-                    else:
-                        record = {
-                            "latitude": query.get("latitude"),
-                            "longitude": query.get("longitude"),
-                            "postcode": None,
-                            "country": None,
-                            "admin_district": None,
-                            "nhs_ha": None,
-                            "distance": None
-                        }
-                    enriched.append(record)
-            else:
-                logger.warning(f"API respondió con error HTTP {response.status_code}")
-        except Exception as e:
-            logger.error(f"Fallo en la petición a la API: {e}")
+
+        success = False
+        retries = 5
+        delay = 1
+
+        for attempt in range(retries):
+            try:
+                response = requests.post("https://api.postcodes.io/postcodes", json=payload, timeout=10)
+
+                if response.status_code == 200:
+                    data = response.json().get("result", [])
+                    for item in data:
+                        query = item.get("query", {})
+                        result = item.get("result")
+                        if result:
+                            enriched.append({
+                                "latitude": query.get("latitude"),
+                                "longitude": query.get("longitude"),
+                                "postcode": result[0].get("postcode") if result[0] else None,
+                                "country": result[0].get("country") if result[0] else None,
+                                "admin_district": result[0].get("admin_district") if result[0] else None,
+                                "nhs_ha": result[0].get("nhs_ha") if result[0] else None,
+                                "distance": result[0].get("distance") if result[0] else None
+                            })
+                        else:
+                            enriched.append({
+                                "latitude": query.get("latitude"),
+                                "longitude": query.get("longitude"),
+                                "postcode": None,
+                                "country": None,
+                                "admin_district": None,
+                                "nhs_ha": None,
+                                "distance": None
+                            })
+                    success = True
+                    break
+                else:
+                    logger.warning(f"Intento {attempt+1}: HTTP {response.status_code}")
+            except Exception as e:
+                logger.warning(f"Intento {attempt+1} falló: {e}")
+
+            time.sleep(delay)
+            delay *= 2  # backoff
+            delay += random.uniform(0, 1)
+
+        if not success:
+            logger.error("Fallo permanente al consultar chunk, se marcará todo como None.")
+            for row in chunk.itertuples():
+                enriched.append({
+                    "latitude": row.latitude,
+                    "longitude": row.longitude,
+                    "postcode": None,
+                    "country": None,
+                    "distance": None
+                })
+
     return pd.DataFrame(enriched)
 
 # Paso 3: Almacenamiento en base de datos PostgreSQL
@@ -106,10 +136,10 @@ def generate_report(db_url: str):
 
 # Ejecución principal
 if __name__ == "__main__":
-    df = load_and_validate_csv("data/postcodesgeo.csv")
+    df = load_and_validate_csv("data/test_postcodes.csv")
     enriched_df = enrich_coordinates_bulk(df)
     enriched_df.to_csv("reports/enriched_postcodes.csv", index=False)
-    db_uri = "postgresql://bia_user:bia_password@postgres:5432/bia_db"
-    # db_uri = "postgresql://bia_user:bia_password@localhost:5432/bia_db"
+    # db_uri = "postgresql://bia_user:bia_password@postgres:5432/bia_db"
+    db_uri = "postgresql://bia_user:bia_password@localhost:5432/bia_db"
     save_to_postgres(enriched_df, db_uri)
     generate_report(db_uri)
