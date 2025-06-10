@@ -1,12 +1,10 @@
-
-# Proyecto: Solución caso técnico Bia Energy
-# Autor: Jhonatan Andres Saldarriaga I.
-
 # Paso 1: Leer CSV y validar datos
 import pandas as pd
 import logging
 import requests
 from sqlalchemy import create_engine
+import sys
+sys.path.append("src")
 from src.utils import setup_logger
 
 logger = setup_logger()
