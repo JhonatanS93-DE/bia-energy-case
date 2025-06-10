@@ -74,6 +74,8 @@ with DAG(
                                 "longitude": query.get("longitude"),
                                 "postcode": result[0].get("postcode") if result[0] else None,
                                 "country": result[0].get("country") if result[0] else None,
+                                "admin_district": result[0].get("admin_district") if result[0] else None,
+                                "nhs_ha": result[0].get("nhs_ha") if result[0] else None,
                                 "distance": result[0].get("distance") if result[0] else None
                             }
                         else:
@@ -82,6 +84,8 @@ with DAG(
                                 "longitude": query.get("longitude"),
                                 "postcode": None,
                                 "country": None,
+                                "admin_district": None,
+                                "nhs_ha": None,
                                 "distance": None
                             }
                         enriched.append(record)
