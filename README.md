@@ -35,22 +35,18 @@ La siguiente imagen resume la estructura principal del proyecto.
 
 ## Diagrama de Arquitectura
 
-La siguiente imagen muestra el flujo completo del pipeline desarrollado:
+El siguiente diagrama muestra el flujo de datos completo del pipeline:More actions
 
-![Diagrama de Arquitectura](docs/diagrama_arquitectura_bia.png)
+[Ver diagrama editable en draw.io](docs/diagrama_arquitectura_bia.drawio.png)
 
-También incluye el archivo editable del diagrama:  
-`docs/diagrama_arquitectura_bia.drawio`
+Puedes abrirlo desde [https://app.diagrams.net](https://app.diagrams.net) arrastrando el archivo aqui se podria editar una mejora futura.
 
-**Componentes clave:**
+**Componentes de la arquitectura:**
 - Ingesta de datos desde archivo CSV
 - Enriquecimiento de coordenadas usando API pública `postcodes.io`
 - Almacenamiento en base de datos PostgreSQL
 - Generación de reportes automáticos
 - Pipeline orquestado con Apache Airflow para entornos productivos
-
-Diagrama editable en [draw.io](https://app.diagrams.net):  
-`docs/diagrama_arquitectura_bia.drawio`
 
 ---
 
