@@ -26,23 +26,8 @@ Desarrollar una solución de punta a punta para enriquecer coordenadas geoespaci
 ## Estructura del Proyecto
 
 ```
-.
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── data/
-│   └── postcodes_geo.csv
-├── reports/
-│   ├── top_postcodes.csv
-│   └── quality_stats.csv
-├── src/
-│   ├── bia_pipeline.py
-│   └── utils.py
-├── airflow/
-│   └── dags/
-│       └── bia_pipeline_dag.py
-```
 
+[Ver imagen de la estructura del proyecto](docs/estructura del proyecto.png)
 ---
 
 ## Ejecución del Proyecto (Local via Docker)
@@ -117,7 +102,7 @@ Esta versión con Airflow se entrega como una carpeta adicional (`airflow/`) que
 
 El siguiente diagrama muestra el flujo de datos completo del pipeline:
 
-📄 [Ver diagrama editable en draw.io](docs/diagrama_arquitectura_bia.drawio.png)
+[Ver diagrama editable en draw.io](docs/diagrama_arquitectura_bia.drawio.png)
 
 Puedes abrirlo desde [https://app.diagrams.net](https://app.diagrams.net) arrastrando el archivo aqui se podria editar una mejora futura.
 
