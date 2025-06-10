@@ -1,3 +1,4 @@
+# Autor: Jhonatan Saldarriaga (Case Tecnico Bia Energy)
 # Paso 1: Leer CSV y validar datos
 import pandas as pd
 import logging
@@ -22,10 +23,10 @@ def load_and_validate_csv(filepath: str) -> pd.DataFrame:
         logger.error(f"Error al leer y validar CSV: {e}")
         raise
 
-# Paso 2: Enriquecimiento con API externa (Bulk Reverse Geocode)
+# Paso 2: Enriquecimiento con API externa (Se uso Bulk Reverse Geocode)
 def enrich_coordinates_bulk(df: pd.DataFrame) -> pd.DataFrame:
     enriched = []
-    chunk_size = 100  # API limitation
+    chunk_size = 100  # (Limitacion de la API)
     for i in range(0, len(df), chunk_size):
         chunk = df.iloc[i:i+chunk_size]
         payload = {
