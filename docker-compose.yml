@@ -12,6 +12,8 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - bia_network
 
   bia_app:
     build: .
@@ -21,6 +23,11 @@ services:
       - .:/app
     environment:
       - PYTHONUNBUFFERED=1
+    networks:
+      - bia_network
 
 volumes:
   pgdata:
+
+networks:
+  bia_network:
