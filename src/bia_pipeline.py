@@ -136,7 +136,7 @@ def generate_report(db_url: str):
 
 # Ejecución principal
 if __name__ == "__main__":
-    df = load_and_validate_csv("data/test_postcodes.csv")
+    df = load_and_validate_csv("data/postcodesgeo.csv")
     enriched_df = enrich_coordinates_bulk(df)
     enriched_df.to_csv("reports/enriched_postcodes.csv", index=False)
     db_uri = "postgresql://bia_user:bia_password@postgres:5432/bia_db"
