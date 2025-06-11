@@ -82,6 +82,22 @@ docker-compose up --build
    - `top_postcodes.csv`: códigos postales más frecuentes.
    - `quality_stats.csv`: porcentaje de coordenadas no enriquecidas.
 
+## ¿Qué quality stats incluye?
+
+Estas son las métricas que calcula el pipeline:
+
+| Métrica              | Descripción |
+|----------------------|-------------|
+| `total_records`      | Total de filas en la tabla `enriched_postcodes`. Te dice cuántos registros procesaste. |
+| `null_postcodes`     | Cuántos registros no tienen un código postal (`postcode IS NULL`). Esto ayuda a medir la cobertura de la API. |
+| `valid_postcodes`    | Cuántos registros tienen un código postal válido. |
+| `pct_null_postcode`  | Porcentaje de registros sin código postal. Te indica qué tan completa fue la respuesta de la API. |
+| `pct_valid_postcode` | Porcentaje de registros con código postal válido. Complementa la métrica anterior. |
+| `distinct_postcodes` | Cuántos códigos postales únicos se encontraron. Es útil para saber la diversidad geográfica. |
+| `avg_distance`       | Promedio de la distancia devuelta por la API entre el punto original y el código postal asignado. Ayuda a validar la precisión. |
+| `std_distance`       | Desviación estándar de las distancias. Un valor alto puede indicar que algunas asignaciones fueron imprecisas. |
+
+
 ---
 
 ## Logging centralizado

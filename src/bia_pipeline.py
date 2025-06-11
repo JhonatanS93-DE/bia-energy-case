@@ -117,7 +117,8 @@ def generate_report(db_url: str):
     engine = create_engine(db_url)
     with engine.connect() as conn:
         top_postcodes = pd.read_sql("""
-            SELECT postcode, COUNT(*) AS count FROM enriched_postcodes
+            SELECT postcode, COUNT(*) AS count 
+            FROM enriched_postcodes
             WHERE postcode IS NOT NULL
             GROUP BY postcode
             ORDER BY count DESC
@@ -125,7 +126,15 @@ def generate_report(db_url: str):
         """, conn)
 
         quality_stats = pd.read_sql("""
-            SELECT COUNT(*) FILTER (WHERE postcode IS NULL)*100.0/COUNT(*) AS porcentaje_null 
+            SELECT
+                COUNT(*) AS total_records,
+                COUNT(*) FILTER (WHERE postcode IS NULL) AS null_postcodes,
+                COUNT(*) FILTER (WHERE postcode IS NOT NULL) AS valid_postcodes,
+                ROUND((COUNT(*) FILTER (WHERE postcode IS NULL)*100.0 / COUNT(*))::numeric, 2) AS pct_null_postcode,
+                ROUND((COUNT(*) FILTER (WHERE postcode IS NOT NULL)*100.0 / COUNT(*))::numeric, 2) AS pct_valid_postcode,
+                COUNT(DISTINCT postcode) AS distinct_postcodes,
+                ROUND(AVG(distance)::numeric, 2) AS avg_distance,
+                ROUND(STDDEV(distance)::numeric, 2) AS std_distance
             FROM enriched_postcodes;
         """, conn)
 
@@ -133,6 +142,7 @@ def generate_report(db_url: str):
         quality_stats.to_csv("reports/quality_stats.csv", index=False)
 
         logger.info("Reportes generados en /reports")
+
 
 # Ejecución principal
 if __name__ == "__main__":
